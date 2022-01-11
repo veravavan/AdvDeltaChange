@@ -18,3 +18,5 @@ Imports:
     data.table,
     raster,
     terra
+URL: https://github.com/veravavan/AdvDeltaChange
+BugReports: https://github.com/veravavan/AdvDeltaChange/issues
