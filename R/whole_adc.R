@@ -2,16 +2,16 @@
 
 #' Transformation for precipitation values (whole method)
 #'
-#' @param file_path_sim the path to the simulated precipitation values (already extracted)
-#' @param file_path_obs the path to the observed precipitation values (.txt)
+#' @param data_sim the data with the simulated precipitation values (already extracted)
+#' @param data_obs the data with the observed precipitation values
 #' @return The observed precipitation values with an added column for transformed values
 #' @examples
-#' file_path_sim <- 'data/pr_sim.rda'
-#' file_path_obs <- 'data/pr.rda'
-#' trans <- adc_pr(file_path_sim, file_path_obs)
-adc_pr <- function(file_path_sim, file_path_obs) {
-  assign('pr_sim', get(load(file_path_sim)))
-  assign('pr', get(load(file_path_obs)))
+#' data_sim <- load('data/pr_sim.rda')
+#' data_obs <- load('data/pr.rda')
+#' trans <- adc_pr(data_sim, data_obs)
+adc_pr <- function(data_sim, data_obs) {
+  assign('pr_sim', data_sim)
+  assign('pr', data_obs)
   pr_sim[, pr5 := 60*60*24*frollsum(pr, 5, align = 'c')]
   pr_sim <- pr_sim[!is.na(pr5)]
   pr_ctrl <- pr_sim[year(DTM) %in% 1981:2010]
