@@ -8,6 +8,8 @@
 #' @param scen_q 60 and 90 quantiles of the scenario period precipitation data
 #' @param pr Observed precipitation values in the control period timeline
 #' @param obs_q 60 and 90 quantiles of the observed precipitation data in the control period timeline
+#' @param a The a parameter, if not supplied it is calculated
+#' @param b The b parameter, if not supplied it is calculated
 #' @return The observed precipitation values with an added column for transformed values
 #' @examples
 #' load('data/pr_sim.rda')
@@ -22,11 +24,15 @@
 #' pr <- pr[year(DTM) %in% 1981:2010]
 #' obs_q <- quantile(pr$pr_o5, c(.6,.9))
 #' print(pr_transf(pr_ctrl, pr_scen, ctrl_q, scen_q, pr, obs_q))
-pr_transf <- function(pr_ctrl, pr_scen, ctrl_q, scen_q, pr, obs_q) {
+pr_transf <- function(pr_ctrl, pr_scen, ctrl_q, scen_q, pr, obs_q, a = NA, b = NA) {
   Ec <- pr_ctrl[pr5>ctrl_q[2], mean(pr5 - ctrl_q[2])]
   Es <- pr_scen[pr5>scen_q[2], mean(pr5 - scen_q[2])]
-  b <- pr_b(scen_q, ctrl_q, obs_q)
-  a <- pr_a(scen_q, ctrl_q, obs_q, b)
+  if (is.na(b)) {
+    b <- pr_b(scen_q, ctrl_q, obs_q)
+  }
+  if(is.na(a)) {
+    a <- pr_a(scen_q, ctrl_q, obs_q, b)
+  }
   pr[pr_o5<obs_q[2], pr_trans := a *pr_o^b]
   pr[pr_o5>=obs_q[2], pr_trans := Es/Ec * (pr_o - obs_q[2]) + a * obs_q[2] ^b]
   return(pr)

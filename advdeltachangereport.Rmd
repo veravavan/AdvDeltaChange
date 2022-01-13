@@ -1,0 +1,139 @@
+---
+title: "Advanced Delta Change Report"
+author: "Vera Vavan"
+date: "13/01/2022"
+output: pdf_document
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(usethis)
+```
+
+## Introduction
+
+Advanced delta change is a method which produces a climate change scenario based on the real observed data and simulated data. It can be performed on precipitation and temperature data, with different calculations. AdvDeltaChange package in R allows automatic calculations of all parameters and visualizes the climate change scenario. The calculations are performed on data from Klementinum.
+
+## Method and results
+
+Firstly, the package needs to be downloaded from GitHub which is done by installing the devtools package if it is not already installed, and then running the code:
+
+```{r, results='hide', error=FALSE, message=FALSE, warning=FALSE}
+library(devtools)
+install_github("veravavan/AdvDeltaChange")
+library(AdvDeltaChange)
+```
+
+The data used in this report comes from the data within the package. The source for observed data about precipitation and temperature from Klementinum is [this website](http://www.ecad.eu){.uri}, and it is saved in the package as pr and tas. The simulated data about precipitation and temperature is from the second generation Canadian Earth System Model (CanESM2) downloaded through [their website](https://climate-scenarios.canada.ca/?page=pred-canesm2){.uri}, and saved within the package as pr_sim and tas_sim. Other data that is not within the package can be used as well, however it must follow certain guidelines described within the function documentation. Besides the data, the method itself was constructed following the paper from @vanpelt2012.
+
+If data from different locations need to be used, the first step would be extracting the simulated data from the .nc file by using the function rastr_extract() from the package and reading the observed data. However, certain system requirements are needed for large extractions, which is why this report will use already extracted data within the package.
+
+To start using the method, the data needs to be saved within the environment using the following code:
+
+```{r, results='hide'}
+data('pr')
+data('pr_sim')
+```
+
+The data needs to be in a certain format so that the parameters for the method can be calculated. Firstly, the simulated precipitation values need to be summed into five day periods and the missing values need to be removed, which is done with the function frollsum():
+
+```{r, results='hide'}
+pr_sim[, pr5 := 60*60*24*frollsum(pr, 5, align = 'c')]
+pr_sim = pr_sim[!is.na(pr5)]
+```
+
+Then the control and scenario periods need to be defined, where the control represents the past and scenario the future. The control period used for this data is 1981-2010 and the scenario period is 2071-2100. When the data is restricted to these periods, the 60% and 90% quantiles need to be found for both periods in order to find the parameters:
+
+```{r}
+
+pr_ctrl = pr_sim[year(DTM) %in% 1981:2010]
+pr_scen = pr_sim[year(DTM) %in% 2071:2100]
+ 
+ctrl_q = quantile(pr_ctrl$pr5, c(.6,.9))
+scen_q = quantile(pr_scen$pr5, c(.6,.9))
+ctrl_q
+scen_q
+```
+
+The transformation can be performed automatically with the function pr_trasf(), but the parameters are not visible that way and they can be obtained by using the following functions.
+
+If the method is performed without bias correction, this is enough to calculate the parameters with the functions pr_a\_nb and pr_b\_nb, but for bias correction, the quantiles for observed data within the control period needs to be found as well:
+
+```{r, results='hide'}
+pr[, pr_o5 := frollsum(pr_o, 5)]
+pr = pr[year(DTM) %in% 1981:2010]
+obs_q = quantile(pr$pr_o5, c(.6,.9))
+```
+
+Now the a and b parameters can be found using the pr_b and pr_a functions, but the parameter b must be found first since it is needed for parameter a calculation:
+
+```{r}
+b <- pr_b(scen_q, ctrl_q, obs_q)
+a <- pr_a(scen_q, ctrl_q, obs_q, b)
+a[[1]]
+b[[1]]
+
+```
+
+After finding these parameters and quantiles, the transformation can be easily performed by using the function pr_transf() from the package. The function can find the parameters automatically, but they can also be supplied:
+
+```{r}
+pr_trans <- pr_transf(pr_ctrl, pr_scen, ctrl_q, scen_q, pr, obs_q)
+head(pr_trans)
+```
+
+However, to understand the data, a table is not enough and it can be visualized using the function pr_plot():
+
+```{r, message=FALSE}
+pr_plot(pr_trans)
+```
+
+The black lines on the graph above represent the transformed data series, while the red lines represent the observed data supplied.
+
+As the precipitation data is found, the next step is to perform the temperature transformation, which is much more simple as there are no parameters. Firstly, the data needs to be found and cleaned up, finding the same control and scenario periods, but no quantiles:
+
+```{r}
+data("tas_sim")
+data("tas")
+
+tas_sim[, tas := tas-273.15]
+tas_ctrl = tas_sim[year(DTM) %in% 1981:2010]
+tas_scen = tas_sim[year(DTM) %in% 2071:2100]
+
+tas_trans <- tas_transf(tas, tas_scen, tas_ctrl)
+head(tas_trans)
+```
+
+And the visualization of the temperature data can be done in the same way as precipitation:
+
+```{r}
+tas_plot(tas_trans)
+```
+
+The black lines represent the observed true series, while the red one represents the transformed data.
+
+Aside from the individual calculations, the whole method can be done using just two functions by just supplying the data:
+
+```{r}
+data_sim <- data('pr_sim')
+data_obs <- data('pr')
+pr_trans <- adc_pr(data_sim, data_obs)
+head(pr_trans)
+```
+
+```{r}
+data_sim <- data('tas_sim')
+data_obs <- data('tas')
+tas_trans <- adc_tas(data_sim, data_obs)
+head(tas_trans)
+```
+
+As it can be seen, the results are identical as when performing individual steps, now the transformation just needs to be visualized.
+
+## Discussion and conclusion
+
+The plots produced by using the functions from the AdvDeltaChange package show how well this method is able to transform the observed data with the simulated data. However, the precipitation transformation is much less extreme than the temperature transformations, as the temperature varies more and the impact on it is higher. Precipitation on the other hand varies less, but the extremes are even more extreme than the observed data.
+
+## Bibliography

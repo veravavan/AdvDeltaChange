@@ -10,8 +10,8 @@
 #' data_obs <- data('pr')
 #' trans <- adc_pr(data_sim, data_obs)
 adc_pr <- function(data_sim, data_obs) {
-  assign('pr_sim', data_sim)
-  assign('pr', data_obs)
+  assign('pr_sim', get(data_sim))
+  assign('pr', get(data_obs))
   pr_sim[, pr5 := 60*60*24*frollsum(pr, 5, align = 'c')]
   pr_sim <- pr_sim[!is.na(pr5)]
   pr_ctrl <- pr_sim[year(DTM) %in% 1981:2010]
@@ -35,11 +35,11 @@ adc_pr <- function(data_sim, data_obs) {
 #' data_obs <- data('tas')
 #' tas_trans <- adc_tas(data_sim, data_obs)
 adc_tas <- function(data_sim, data_obs) {
-  assign('tas_sim', data_sim)
+  assign('tas_sim', get(data_sim))
   tas_sim[, tas := tas-273.15]
   tas_ctrl = tas_sim[year(DTM) %in% 1981:2010]
   tas_scen = tas_sim[year(DTM) %in% 2071:2100]
-  assign('tas', data_obs)
+  assign('tas', get(data_obs))
   tas <- tas_transf(tas, tas_scen, tas_ctrl)
   return(tas)
 }
