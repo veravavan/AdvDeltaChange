@@ -4,12 +4,12 @@
 \alias{adc_tas}
 \title{Transformation for temperature values (whole method)}
 \usage{
-adc_tas(file_path_sim, file_path_obs)
+adc_tas(data_sim, data_obs)
 }
 \arguments{
-\item{file_path_sim}{the path to the simulated temperature values (already extracted)}
+\item{data_sim}{the data with the simulated temperature values (already extracted)}
 
-\item{file_path_obs}{the path to the observed temperature values (.txt)}
+\item{data_obs}{the data with the observed temperature values}
 }
 \value{
 The observed temperature values with an added column for transformed values
@@ -18,7 +18,7 @@ The observed temperature values with an added column for transformed values
 Transformation for temperature values (whole method)
 }
 \examples{
-file_path_sim <- 'data/tas_sim.rda'
-file_path_obs <- 'data/tas.rda'
-tas_trans <- adc_tas(file_path_sim, file_path_obs)
+data_sim <- data('tas_sim')
+data_obs <- data('tas')
+tas_trans <- adc_tas(data_sim, data_obs)
 }

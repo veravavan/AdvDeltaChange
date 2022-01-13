@@ -6,8 +6,8 @@
 #' @param data_obs the data with the observed precipitation values
 #' @return The observed precipitation values with an added column for transformed values
 #' @examples
-#' data_sim <- load('data/pr_sim.rda')
-#' data_obs <- load('data/pr.rda')
+#' data_sim <- data('pr_sim')
+#' data_obs <- data('pr')
 #' trans <- adc_pr(data_sim, data_obs)
 adc_pr <- function(data_sim, data_obs) {
   assign('pr_sim', data_sim)
@@ -27,19 +27,19 @@ adc_pr <- function(data_sim, data_obs) {
 
 #' Transformation for temperature values (whole method)
 #'
-#' @param file_path_sim the path to the simulated temperature values (already extracted)
-#' @param file_path_obs the path to the observed temperature values (.txt)
+#' @param data_sim the data with the simulated temperature values (already extracted)
+#' @param data_obs the data with the observed temperature values
 #' @return The observed temperature values with an added column for transformed values
 #' @examples
-#' file_path_sim <- 'data/tas_sim.rda'
-#' file_path_obs <- 'data/tas.rda'
-#' tas_trans <- adc_tas(file_path_sim, file_path_obs)
-adc_tas <- function(file_path_sim, file_path_obs) {
-  assign('tas_sim', get(load(file_path_sim)))
+#' data_sim <- data('tas_sim')
+#' data_obs <- data('tas')
+#' tas_trans <- adc_tas(data_sim, data_obs)
+adc_tas <- function(data_sim, data_obs) {
+  assign('tas_sim', data_sim)
   tas_sim[, tas := tas-273.15]
   tas_ctrl = tas_sim[year(DTM) %in% 1981:2010]
   tas_scen = tas_sim[year(DTM) %in% 2071:2100]
-  assign('tas', get(load(file_path_obs)))
+  assign('tas', data_obs)
   tas <- tas_transf(tas, tas_scen, tas_ctrl)
   return(tas)
 }

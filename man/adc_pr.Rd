@@ -18,7 +18,7 @@ The observed precipitation values with an added column for transformed values
 Transformation for precipitation values (whole method)
 }
 \examples{
-data_sim <- load('data/pr_sim.rda')
-data_obs <- load('data/pr.rda')
+data_sim <- data('pr_sim')
+data_obs <- data('pr')
 trans <- adc_pr(data_sim, data_obs)
 }
