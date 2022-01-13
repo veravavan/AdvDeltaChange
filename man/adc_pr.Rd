@@ -4,12 +4,12 @@
 \alias{adc_pr}
 \title{Transformation for precipitation values (whole method)}
 \usage{
-adc_pr(file_path_sim, file_path_obs)
+adc_pr(data_sim, data_obs)
 }
 \arguments{
-\item{file_path_sim}{the path to the simulated precipitation values (already extracted)}
+\item{data_sim}{the data with the simulated precipitation values (already extracted)}
 
-\item{file_path_obs}{the path to the observed precipitation values (.txt)}
+\item{data_obs}{the data with the observed precipitation values}
 }
 \value{
 The observed precipitation values with an added column for transformed values
@@ -18,7 +18,7 @@ The observed precipitation values with an added column for transformed values
 Transformation for precipitation values (whole method)
 }
 \examples{
-file_path_sim <- 'data/pr_sim.rda'
-file_path_obs <- 'data/pr.rda'
-trans <- adc_pr(file_path_sim, file_path_obs)
+data_sim <- load('data/pr_sim.rda')
+data_obs <- load('data/pr.rda')
+trans <- adc_pr(data_sim, data_obs)
 }

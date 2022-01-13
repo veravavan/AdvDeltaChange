@@ -8,4 +8,12 @@
 \description{
 This package can extract data from rasters, derive the delta change parameters, transform observed series into climate change scenarios and visualize the results. It uses .txt files for observed data and .nc files for simulated data.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/veravavan/AdvDeltaChange}
+  \item Report bugs at \url{https://github.com/veravavan/AdvDeltaChange/issues}
+}
+
+}
 \keyword{internal}
